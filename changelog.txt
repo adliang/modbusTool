@@ -1,0 +1,2 @@
+V.0.1.0 - Read registers 
+	- Save / Load view list

@@ -1,19 +1,21 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'guidesign_0_1_0.ui'
+# Form implementation generated from reading ui file 'guidesign_10.ui'
 #
 # Created by: PyQt5 UI code generator 5.6
 #
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QFrame, QLabel
+from PyQt5.QtWidgets import (QTreeWidgetItem, QTreeWidget, QTreeView, QTableWidget, QTableWidgetItem, QSpinBox, QStatusBar, QDialog, QWidget, QPushButton, QLineEdit,
+    QInputDialog, QApplication, QInputDialog, QLabel, QFrame)
+
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1250, 698)
+        MainWindow.resize(1239, 601)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("modbus.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap("../modbus.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         MainWindow.setWindowIcon(icon)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
@@ -30,8 +32,10 @@ class Ui_MainWindow(object):
         self.btnStop.setObjectName("btnStop")
         self.horizontalLayout.addWidget(self.btnStop)
         self.verticalLayout_2.addLayout(self.horizontalLayout)
+
         self.treeWidget = QtWidgets.QTreeWidget(self.centralwidget)
-        self.treeWidget.setMaximumSize(QtCore.QSize(350, 16777215))
+        self.treeWidget.setMaximumSize(QtCore.QSize(400, 16777215))
+        self.treeWidget.setIndentation(15)
         self.treeWidget.setRootIsDecorated(True)
         self.treeWidget.setUniformRowHeights(False)
         self.treeWidget.setItemsExpandable(True)
@@ -46,14 +50,23 @@ class Ui_MainWindow(object):
         self.verticalLayout.setObjectName("verticalLayout")
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
+        self.horizontalLayout_4 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_4.setObjectName("horizontalLayout_2")
         self.btnWrite = QtWidgets.QPushButton(self.centralwidget)
         self.btnWrite.setObjectName("btnWrite")
         self.horizontalLayout_2.addWidget(self.btnWrite)
         self.btnUnits = QtWidgets.QPushButton(self.centralwidget)
         self.btnUnits.setObjectName("btnUnits")
         self.horizontalLayout_2.addWidget(self.btnUnits)
+        self.checkDebug = QtWidgets.QCheckBox(self.centralwidget)
+        self.checkDebug.setObjectName("checkDebug")
+        self.horizontalLayout_2.addWidget(self.checkDebug)
+        self.line = QtWidgets.QFrame(self.centralwidget)
+        self.line.setFrameShape(QtWidgets.QFrame.VLine)
+        self.line.setFrameShadow(QtWidgets.QFrame.Sunken)
+        self.line.setObjectName("line")
+        self.horizontalLayout_2.addWidget(self.line)
         self.label_2 = QtWidgets.QLabel(self.centralwidget)
-        self.label_2.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_2.setObjectName("label_2")
         self.horizontalLayout_2.addWidget(self.label_2)
         self.comboBoxDataEncode = QtWidgets.QComboBox(self.centralwidget)
@@ -61,37 +74,30 @@ class Ui_MainWindow(object):
         self.comboBoxDataEncode.addItem("")
         self.comboBoxDataEncode.addItem("")
         self.horizontalLayout_2.addWidget(self.comboBoxDataEncode)
-        self.checkBoxPoll = QtWidgets.QCheckBox(self.centralwidget)
-        self.checkBoxPoll.setLayoutDirection(QtCore.Qt.RightToLeft)
-        self.checkBoxPoll.setObjectName("checkBoxPoll")
-        self.horizontalLayout_2.addWidget(self.checkBoxPoll)
-        self.checkDebug = QtWidgets.QCheckBox(self.centralwidget)
-        self.checkDebug.setLayoutDirection(QtCore.Qt.RightToLeft)
-        self.checkDebug.setObjectName("checkDebug")
-        self.horizontalLayout_2.addWidget(self.checkDebug)
         self.label = QtWidgets.QLabel(self.centralwidget)
-        self.label.setToolTip("")
-        self.label.setAutoFillBackground(False)
-        self.label.setFrameShape(QtWidgets.QFrame.NoFrame)
-        self.label.setScaledContents(False)
         self.label.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
-        self.label.setWordWrap(False)
         self.label.setObjectName("label")
         self.horizontalLayout_2.addWidget(self.label)
         self.spinBoxPollRate = QtWidgets.QDoubleSpinBox(self.centralwidget)
-        self.spinBoxPollRate.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
         self.spinBoxPollRate.setButtonSymbols(QtWidgets.QAbstractSpinBox.PlusMinus)
-        self.spinBoxPollRate.setProperty("showGroupSeparator", False)
         self.spinBoxPollRate.setDecimals(3)
-        self.spinBoxPollRate.setMinimum(0.01)
+        self.spinBoxPollRate.setMinimum(0.1)
         self.spinBoxPollRate.setSingleStep(0.1)
         self.spinBoxPollRate.setProperty("value", 0.3)
         self.spinBoxPollRate.setObjectName("spinBoxPollRate")
         self.horizontalLayout_2.addWidget(self.spinBoxPollRate)
         self.verticalLayout.addLayout(self.horizontalLayout_2)
+
+
+
+        self.verticalLayout.addLayout(self.horizontalLayout_4)
+
+
+        self.btnUpdate = QtWidgets.QPushButton(self.centralwidget)
+        self.btnUpdate.setObjectName("btnUpdate")
+        self.horizontalLayout_4.addWidget(self.btnUpdate)
+
         self.tableWidget = QtWidgets.QTableWidget(self.centralwidget)
-        self.tableWidget.setToolTip("")
-        self.tableWidget.setToolTipDuration(-1)
         self.tableWidget.setGridStyle(QtCore.Qt.SolidLine)
         self.tableWidget.setCornerButtonEnabled(False)
         self.tableWidget.setObjectName("tableWidget")
@@ -122,17 +128,15 @@ class Ui_MainWindow(object):
 
         self.m_statusleft = QLabel("")
         self.m_statusleft.setFrameStyle(QFrame.Sunken)
-        self.m_statusmid = QLabel("IP:")
-        self.m_statusmid.setFrameStyle(QFrame.Sunken)
         self.m_statusright = QLabel("TX:")
         self.m_statusright.setFrameStyle(QFrame.Panel)
+
         self.statusBar.addPermanentWidget(self.m_statusleft, 1)
-        self.statusBar.addPermanentWidget(self.m_statusmid, 2)
-        self.statusBar.addPermanentWidget(self.m_statusright, 3)
+        self.statusBar.addPermanentWidget(self.m_statusright, 2)
 
         MainWindow.setStatusBar(self.statusBar)
         self.menuBar = QtWidgets.QMenuBar(MainWindow)
-        self.menuBar.setGeometry(QtCore.QRect(0, 0, 1250, 21))
+        self.menuBar.setGeometry(QtCore.QRect(0, 0, 1239, 21))
         self.menuBar.setObjectName("menuBar")
         self.menuFile = QtWidgets.QMenu(self.menuBar)
         self.menuFile.setObjectName("menuFile")
@@ -141,15 +145,16 @@ class Ui_MainWindow(object):
         MainWindow.setMenuBar(self.menuBar)
         self.actionSetup = QtWidgets.QAction(MainWindow)
         self.actionSetup.setObjectName("actionSetup")
+        self.actionSave = QtWidgets.QAction(MainWindow)
+        self.actionSave.setObjectName("actionSave")
+        self.actionLoad = QtWidgets.QAction(MainWindow)
+        self.actionLoad.setObjectName("actionLoad")
         self.actionQuit = QtWidgets.QAction(MainWindow)
         self.actionQuit.setObjectName("actionQuit")
-        self.actionSave_View_List = QtWidgets.QAction(MainWindow)
-        self.actionSave_View_List.setObjectName("actionSave_View_List")
-        self.actionLoad_View_List = QtWidgets.QAction(MainWindow)
-        self.actionLoad_View_List.setObjectName("actionLoad_View_List")
         self.menuFile.addAction(self.actionSetup)
-        self.menuFile.addAction(self.actionSave_View_List)
-        self.menuFile.addAction(self.actionLoad_View_List)
+        self.menuFile.addAction(self.actionSave)
+        self.menuFile.addAction(self.actionLoad)
+
         self.menuFile.addSeparator()
         self.menuFile.addAction(self.actionQuit)
         self.menuBar.addAction(self.menuFile.menuAction())
@@ -163,13 +168,15 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(_translate("MainWindow", "Modbus Master Tool"))
         self.btnStart.setText(_translate("MainWindow", "Start"))
         self.btnStop.setText(_translate("MainWindow", "Stop"))
+        self.btnUpdate.setText(_translate("MainWindow", "Update"))
+
         self.btnWrite.setText(_translate("MainWindow", "Write To Register"))
         self.btnUnits.setText(_translate("MainWindow", "Save Units"))
-        self.label_2.setText(_translate("MainWindow", "Word Order"))
+
+        self.checkDebug.setText(_translate("MainWindow", "Debug"))
+        self.label_2.setText(_translate("MainWindow", "Float Order [MSW LSW]"))
         self.comboBoxDataEncode.setItemText(0, _translate("MainWindow", "AB CD"))
         self.comboBoxDataEncode.setItemText(1, _translate("MainWindow", "CD AB"))
-        self.checkBoxPoll.setText(_translate("MainWindow", "Poll"))
-        self.checkDebug.setText(_translate("MainWindow", "Debug"))
         self.label.setText(_translate("MainWindow", "Poll Period"))
         item = self.tableWidget.horizontalHeaderItem(0)
         item.setText(_translate("MainWindow", "Value"))
@@ -177,12 +184,15 @@ class Ui_MainWindow(object):
         item.setText(_translate("MainWindow", "Units"))
         item = self.tableWidget.horizontalHeaderItem(2)
         item.setText(_translate("MainWindow", "Write"))
+        item = self.tableWidget.horizontalHeaderItem(3)
+        item.setText(_translate("MainWindow", ""))
         item = self.tableWidget.horizontalHeaderItem(4)
         item.setText(_translate("MainWindow", "Notes"))
         self.menuFile.setTitle(_translate("MainWindow", "File"))
         self.menuHelp.setTitle(_translate("MainWindow", "Help"))
         self.actionSetup.setText(_translate("MainWindow", "Setup"))
+        self.actionSave.setText(_translate("MainWindow", "Save"))
+        self.actionLoad.setText(_translate("MainWindow", "Load"))
+
         self.actionQuit.setText(_translate("MainWindow", "Quit"))
-        self.actionSave_View_List.setText(_translate("MainWindow", "Save View List"))
-        self.actionLoad_View_List.setText(_translate("MainWindow", "Load View List"))
 

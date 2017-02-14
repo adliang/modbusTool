@@ -7,7 +7,7 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QFrame, QLabel
+
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -83,7 +83,7 @@ class Ui_MainWindow(object):
         self.spinBoxPollRate.setButtonSymbols(QtWidgets.QAbstractSpinBox.PlusMinus)
         self.spinBoxPollRate.setProperty("showGroupSeparator", False)
         self.spinBoxPollRate.setDecimals(3)
-        self.spinBoxPollRate.setMinimum(0.01)
+        self.spinBoxPollRate.setMinimum(0.001)
         self.spinBoxPollRate.setSingleStep(0.1)
         self.spinBoxPollRate.setProperty("value", 0.3)
         self.spinBoxPollRate.setObjectName("spinBoxPollRate")
@@ -119,17 +119,6 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
         self.statusBar = QtWidgets.QStatusBar(MainWindow)
         self.statusBar.setObjectName("statusBar")
-
-        self.m_statusleft = QLabel("")
-        self.m_statusleft.setFrameStyle(QFrame.Sunken)
-        self.m_statusmid = QLabel("IP:")
-        self.m_statusmid.setFrameStyle(QFrame.Sunken)
-        self.m_statusright = QLabel("TX:")
-        self.m_statusright.setFrameStyle(QFrame.Panel)
-        self.statusBar.addPermanentWidget(self.m_statusleft, 1)
-        self.statusBar.addPermanentWidget(self.m_statusmid, 2)
-        self.statusBar.addPermanentWidget(self.m_statusright, 3)
-
         MainWindow.setStatusBar(self.statusBar)
         self.menuBar = QtWidgets.QMenuBar(MainWindow)
         self.menuBar.setGeometry(QtCore.QRect(0, 0, 1250, 21))

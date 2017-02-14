@@ -1,3 +1,11 @@
+#!/usr/bin/env python
+
+"""Modbus Master Tool
+"""
+
+__version__ = '0.1.0'
+__author__ = 'Andrew Liang'
+
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QTableWidget,QTableWidgetItem
 import guidesign
@@ -18,12 +26,11 @@ from pprint import pprint
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import QThread, pyqtSignal, QObject, QTimer
 from PyQt5.QtWidgets import (QTreeWidgetItem, QTreeWidget, QTreeView, QTableWidget, QTableWidgetItem, QSpinBox, QStatusBar, QDialog, QWidget, QPushButton, QLineEdit,
-    QInputDialog, QApplication, QInputDialog, QLabel)
+    QInputDialog, QApplication, QInputDialog, QLabel, QFrame)
 import logging
 import struct
 
-# TODO modularise sections into classes
-x=1
+x=0
 servers = ["127.0.0.1", "192.168.1.74"]
 
 SERVER_HOST = servers[x]
@@ -154,6 +161,7 @@ class modbusTool(QtWidgets.QMainWindow, guidesign.Ui_MainWindow):
         super(modbusTool, self).__init__(parent)
         SensorThread().initIPaddress(SERVER_HOST)
 
+
         self.setupUi(self)
         self.createTree()
         self.updateTable()
@@ -171,19 +179,19 @@ class modbusTool(QtWidgets.QMainWindow, guidesign.Ui_MainWindow):
         self.comboBoxDataEncode.currentIndexChanged.connect(self.set_endian)
         self.btnUnits.clicked.connect(self.saveUnitsToFile)
         self.actionSetup.triggered.connect(self.initIP)
-        self.actionSave.triggered.connect(self.saveView)
-        self.actionLoad.triggered.connect(self.loadView)
+        self.actionSave_View_List.triggered.connect(self.saveView)
+        self.actionLoad_View_List.triggered.connect(self.loadView)
         self.actionQuit.triggered.connect(self.quitApp)
-        self.btnUpdate.clicked.connect(self.updateCommand)
+        #self.btnUpdate.clicked.connect(self.updateCommand)
         self.comboBoxDataEncode.setCurrentIndex(1)
 
-    def updateCommandDelay(self):
-        SensorThread.poll_rate = 1
-        SensorThread.pollEn = False
-        QTimer.singleShot(300, self.updateCommand)
+    #def updateCommandDelay(self):
+       # SensorThread.poll_rate = 1
+      #  SensorThread.pollEn = False
+      #  QTimer.singleShot(300, self.updateCommand)
 
-    def updateCommand(self):
-        SensorThread.commandWrite(self)
+    #def updateCommand(self):
+      #  SensorThread.commandWrite(self)
         #self.setPollRate()
         #if modbusTool.threadEn:
         #    self.updateUI()
@@ -347,10 +355,7 @@ class modbusTool(QtWidgets.QMainWindow, guidesign.Ui_MainWindow):
 
 
 
-        ##
-    # ---------------------------------------------------------------------------#
-    # TODO Save units to config
-    # ---------------------------------------------------------------------------#
+
 
     def genRecord(self, key, input):
 
@@ -423,7 +428,6 @@ class modbusTool(QtWidgets.QMainWindow, guidesign.Ui_MainWindow):
 
     # ---------------------------------------------------------------------------#
     # Write to register
-    # TODO Write access check
     # ---------------------------------------------------------------------------#
     def updateWriteButton(self):
         if pollList:
@@ -573,13 +577,10 @@ class modbusTool(QtWidgets.QMainWindow, guidesign.Ui_MainWindow):
                                 self.tableWidget.setItem(i, modbusTool.colValue, QTableWidgetItem(str(fi[0])))
 
                             elif pollList[i]['type'] == 'c_float':
-                                print(pack_id)
                                 foo = struct.pack(pack_id, *poll_value[i])
                                 fi = struct.unpack(_big_end + _float, foo)
-                                print(fi[0], ' ', _big_end + _bool, ' ' , poll_value[i])
-
                                 self.tableWidget.setItem(i, modbusTool.colValue, QTableWidgetItem('{:.9f}'.format(fi[0])))
-                                print(fi[0])
+
                             elif pollList[i]['type'] == 'c_int':
                                 foo = struct.pack(pack_id, *poll_value[i])
                                 fi = struct.unpack(_big_end + _int, foo)
