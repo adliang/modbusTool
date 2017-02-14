@@ -7,7 +7,7 @@ __version__ = '0.1.0'
 __author__ = 'Andrew Liang'
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QTableWidget,QTableWidgetItem
+from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QTableWidget, QTableWidgetItem
 import guidesign
 import sys
 import os
@@ -25,17 +25,17 @@ import json
 from pprint import pprint
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import QThread, pyqtSignal, QObject, QTimer
-from PyQt5.QtWidgets import (QTreeWidgetItem, QTreeWidget, QTreeView, QTableWidget, QTableWidgetItem, QSpinBox, QStatusBar, QDialog, QWidget, QPushButton, QLineEdit,
-    QInputDialog, QApplication, QInputDialog, QLabel, QFrame)
+from PyQt5.QtWidgets import (QTreeWidgetItem, QTreeWidget, QTreeView, QTableWidget, QTableWidgetItem, QSpinBox,
+                             QStatusBar, QDialog, QWidget, QPushButton, QLineEdit,
+                             QInputDialog, QApplication, QInputDialog, QLabel, QFrame)
 import logging
 import struct
 
-x=0
+x = 0
 servers = ["127.0.0.1", "192.168.1.74"]
 
 SERVER_HOST = servers[x]
 SERVER_PORT = 502
-
 
 # set global
 global regpoll
@@ -51,6 +51,7 @@ class SensorThread(QThread):
     c = 0
     pollCountSignal = pyqtSignal(int)
     pollCount = 0
+
     def __init__(self):
         QThread.__init__(self)
 
@@ -64,28 +65,24 @@ class SensorThread(QThread):
     def commandWrite(self):
         SensorThread.c.write_multiple_registers(1000, [32, 0])
 
-
     def writeToReg(self, writeArray, addrArray):
         print(writeArray)
         print('addrestowrite')
         print(addrArray)
         for i in range(len(writeArray)):
-          if writeArray[i]:
+            if writeArray[i]:
 
-            try:
-                SensorThread.c.write_multiple_registers(addrArray[i], writeArray[i])
-            except ValueError:
-                self.writeSuccess.emit(False)
-                print('Write error')
+                try:
+                    SensorThread.c.write_multiple_registers(addrArray[i], writeArray[i])
+                except ValueError:
+                    self.writeSuccess.emit(False)
+                    print('Write error')
 
     def debugToggle(self, state):
         SensorThread.c.debug(state)
 
-
-
     def setPollRate(self, pollRate):
         SensorThread.poll_rate = pollRate
-
 
     def run(self):
         global lenpollList
@@ -99,18 +96,19 @@ class SensorThread(QThread):
                         SensorThread.pollCount += 1
                         self.pollCountSignal.emit(SensorThread.pollCount)
                         if read_in:
-                            regs_list[i] = (read_in)
+                            regs_list[i] = read_in
 
                     except IndexError:
                         print('Read error')
                         pass
                 regs = regs_list
-                print('Register Values %s'%regs)
+                print('Register Values %s' % regs)
                 print("------------------------------------------------------")
                 self.regpoll.emit(regs)
             time.sleep(SensorThread.poll_rate)
 
-# test class
+
+### test class
 class NewWindow(QtWidgets.QMainWindow):
     def __init__(self, text):
         super(NewWindow, self).__init__()
@@ -123,9 +121,9 @@ class NewWindow(QtWidgets.QMainWindow):
         self.label.setText(self.message)
         self.dialog = QtWidgets.QTextEdit(self)
 
-class ImageWidget(QtWidgets.QWidget):
 
-    def __init__(self, parent = None):
+class ImageWidget(QtWidgets.QWidget):
+    def __init__(self, parent=None):
         super(ImageWidget, self).__init__(parent)
         self.picture = QtGui.QPixmap('tux.jpeg')
 
@@ -133,8 +131,8 @@ class ImageWidget(QtWidgets.QWidget):
         painter = QtGui.QPainter(self)
         painter.drawPixmap(0, 0, self.picture)
 
-class ImgWidget1(QtWidgets.QLabel):
 
+class ImgWidget1(QtWidgets.QLabel):
     def __init__(self, parent=None):
         super(ImgWidget1, self).__init__(parent)
 
@@ -142,99 +140,115 @@ class ImgWidget1(QtWidgets.QLabel):
         self.setAlignment(QtCore.Qt.AlignCenter)
         self.setPixmap(pic)
 
-class modbusTool(QtWidgets.QMainWindow, guidesign.Ui_MainWindow):
 
-    disp_enable = True  # Enable for display update
-    threadEn = False
+##
+
+class modbusTool(QtWidgets.QMainWindow, guidesign.Ui_MainWindow):
+    # Table Columns
     colValue = 0
     colUnit = 1
     colWrite = 2
     colRemove = 3
     colMsg = 4
+
     endianABCD = 0  # Big Endian Bytes, Reg 1 MSW
     endianCDAB = 1  # Big Endian Bytes, Reg 2 MSW
 
-    endian = endianABCD # Endian for floats
+    endian = endianABCD  # Endian for floats
     last_child = 0
     entryDict = {}
+
     def __init__(self, parent=None):
         super(modbusTool, self).__init__(parent)
-        SensorThread().initIPaddress(SERVER_HOST)
-
-
         self.setupUi(self)
+        SensorThread().initIPaddress(SERVER_HOST)  # Initialise modbus connection
+
         self.createTree()
+        self.setPollRate()
+        self.initViewList()
         self.updateTable()
         self.updateWriteButton()
-        self.setPollRate()
-        self.loadSettings()
-
         self.btnStop.setEnabled(False)
-        self.btnStart.clicked.connect(self.startThread)
-        self.treeWidget.doubleClicked.connect(self.addTableEntry)
-        self.tableWidget.cellDoubleClicked.connect(self.delTableEntry)
+
         self.checkDebug.stateChanged.connect(self.debugModeToggle)
-        self.btnWrite.clicked.connect(self.writeToReg)
         self.spinBoxPollRate.valueChanged.connect(self.setPollRate)
         self.comboBoxDataEncode.currentIndexChanged.connect(self.set_endian)
-        self.btnUnits.clicked.connect(self.saveUnitsToFile)
-        self.actionSetup.triggered.connect(self.initIP)
-        self.actionSave_View_List.triggered.connect(self.saveView)
-        self.actionLoad_View_List.triggered.connect(self.loadView)
-        self.actionQuit.triggered.connect(self.quitApp)
-        #self.btnUpdate.clicked.connect(self.updateCommand)
         self.comboBoxDataEncode.setCurrentIndex(1)
 
-    #def updateCommandDelay(self):
-       # SensorThread.poll_rate = 1
-      #  SensorThread.pollEn = False
-      #  QTimer.singleShot(300, self.updateCommand)
+        self.btnUnits.clicked.connect(self.saveUnitsToFile)
+        self.btnStart.clicked.connect(self.startThread)
+        self.btnWrite.clicked.connect(self.writeToReg)
+        self.btnStop.clicked.connect(self.pausedisplay)
+        self.treeWidget.doubleClicked.connect(self.addTableEntry)
+        self.tableWidget.cellDoubleClicked.connect(self.delTableEntry)
 
-    #def updateCommand(self):
-      #  SensorThread.commandWrite(self)
-        #self.setPollRate()
-        #if modbusTool.threadEn:
-        #    self.updateUI()
-        #SensorThread.pollEn = True
-        #modbusTool.disp_enable = True
-        #modbusTool.threadEn = True
-
+        self.actionSetup.triggered.connect(self.initIP)
+        self.actionSave_View_List.triggered.connect(self.saveViewList)
+        self.actionLoad_View_List.triggered.connect(self.loadViewList)
+        self.actionQuit.triggered.connect(self.quitApp)
 
     # ---------------------------------------------------------------------------#
-    # Menu Bar actions
+    # Generate tree widget from config.json
     # ---------------------------------------------------------------------------#
-    def quitApp(self):
-        QtCore.QCoreApplication.instance().exit()
+    def createTree(self):
 
-    def saveView(self):
-        text_file = open('settings.ini', "w")
+        def fill_item(item, value):
+            if type(value) is dict:
+                for key, val in sorted(value.items()):
+                    if key == 'Types':  # Do not parse the type size entry into tree
+                        return
 
-        json.dump({'ViewList' : pollList}, text_file, indent=4, sort_keys=True)
-        text_file.close()
+                    if key == 'mbrecord':
+                        child = modbusTool.last_child
+                        varname_tree = str(val["name"])
+                        getParentNode = child.parent()
+                        while getParentNode and getParentNode.text(0) != 'mbrecords':
+                            varname_tree = getParentNode.text(0) + '.' + varname_tree
+                            getParentNode = getParentNode.parent()
+                        modbusTool.entryDict.update({varname_tree: str(val["varname"])})
+                        return
 
-        self.m_statusleft.setText("Settings saved!")
+                    child = QTreeWidgetItem()
+                    modbusTool.last_child = child
+                    child.setText(0, str(key))
+                    item.addChild(child)
+                    fill_item(child, val)
 
+        _translate = QtCore.QCoreApplication.translate
+        self.treeWidget.clear()
+        widget = QtWidgets.QTreeWidgetItem(self.treeWidget)
+        widget.setText(0, _translate("MainWindow", 'Modbus Records'))
+        fill_item(widget, config_file)
+        self.treeWidget.expandToDepth(2)
+        self.treeWidget.setExpandsOnDoubleClick(True)
 
-    def loadView(self):
+    # ---------------------------------------------------------------------------#
+    # Set poll rate to poll rate GUI element
+    # ---------------------------------------------------------------------------#
+    def setPollRate(self):
+        SensorThread.poll_rate = self.spinBoxPollRate.value()
+
+    # ---------------------------------------------------------------------------#
+    # Set debug mode to debug checkbox GUI element
+    # ---------------------------------------------------------------------------#
+    def debugModeToggle(self):
+        if self.checkDebug.checkState():
+            SensorThread().debugToggle(True)
+        else:
+            SensorThread().debugToggle(False)
+
+    # ---------------------------------------------------------------------------#
+    # Set poll counter display to status bar GUI element
+    # ---------------------------------------------------------------------------#
+    def updatePollCount(self, pollCounter):
+        self.m_statusright.setText("TX: %i" % pollCounter)
+
+    # ---------------------------------------------------------------------------#
+    # Initialises settings.ini view list
+    # ---------------------------------------------------------------------------#
+    def initViewList(self):
         global pollList
         global lenpollList
-        userInfile = self.openFileNameDialog()
-
-        try:
-            with open(userInfile) as infile:
-                settings_data = json.load(infile)
-                infile.close()
-                pollList = settings_data['ViewList']
-                self.m_statusleft.setText("Setting loaded")
-                lenpollList = len(pollList)
-                self.updateTable()
-        except:
-            self.m_statusleft.setText("Invalid settings file")
-
-    def loadSettings(self):
-        global pollList
-        global lenpollList
-
         try:
             with open('settings.ini') as infile:
                 settings_data = json.load(infile)
@@ -246,121 +260,80 @@ class modbusTool(QtWidgets.QMainWindow, guidesign.Ui_MainWindow):
         except:
             self.m_statusleft.setText("No settings file found...")
 
-
-    def openFileNameDialog(self):
-        options = QFileDialog.Options()
-        options |= QFileDialog.DontUseNativeDialog
-        fileName, _ = QFileDialog.getOpenFileName(self,"QFileDialog.getOpenFileName()", "","All Files (*);;Python Files (*.py)", options=options)
-        if fileName:
-            return(fileName)
-
-    def updateUI(self):
-        modbusTool.disp_enable = True
-
-        SensorThread.pollEn = True
-        self.debugModeToggle()
-        self.btnStart.setEnabled(False)
-        self.btnStop.setEnabled(True)
-
+    # ---------------------------------------------------------------------------#
+    # Menu Bar actions
+    # ---------------------------------------------------------------------------#
+    # Settings menu button
     def initIP(self):
-
         text, ok = QInputDialog.getText(self, 'IP Address', 'Enter IP address')
-
         if ok:
             thing = str(text)
             print(str(text))
             SensorThread().initIPaddress(thing)
 
+    # Save view list menu button
+    def saveViewList(self):
+        text_file = open('settings.ini', "w")
+        json.dump({'ViewList': pollList}, text_file, indent=4, sort_keys=True)
+        text_file.close()
+        self.m_statusleft.setText("Settings saved!")
+
+    # Load view list menu button
+    def loadViewList(self):
+        global pollList
+        global lenpollList
+
+        def openFileNameDialog():
+            options = QFileDialog.Options()
+            options |= QFileDialog.DontUseNativeDialog
+            fileName, _ = QFileDialog.getOpenFileName(self, "Load Settings View", "",
+                                                      "Settings Files (*.ini);; All Files (*)", options=options)
+            if fileName:
+                return fileName
+
+        userInfile = openFileNameDialog()
+        try:
+            with open(userInfile) as infile:
+                settings_data = json.load(infile)
+                infile.close()
+                pollList = settings_data['ViewList']
+                self.m_statusleft.setText("Setting loaded")
+                lenpollList = len(pollList)
+                self.updateTable()
+        except:
+            self.m_statusleft.setText("Invalid settings file")
+
+    # Quit menu button
+    def quitApp(self):
+        QtCore.QCoreApplication.instance().exit()
+
     # ---------------------------------------------------------------------------#
-    # Creating tree widget from config.json
+    # Thread finished action
     # ---------------------------------------------------------------------------#
-    def createTree(self):
-        _translate = QtCore.QCoreApplication.translate
-        self.treeWidget.clear()
-        widget = QtWidgets.QTreeWidgetItem(self.treeWidget)
-        widget.setText(0, _translate("MainWindow", 'mbrecords'))
-        self.fill_item(widget, config_file)
-        __sortingEnabled = self.treeWidget.isSortingEnabled()
-        self.treeWidget.setSortingEnabled(False)
-        self.treeWidget.setSortingEnabled(__sortingEnabled)
-        self.treeWidget.expandToDepth(2)
+    def done(self):
+        self.btnStop.setEnabled(False)
+        self.btnStart.setEnabled(True)
 
-    def fill_item(self, item, value):
+    # ---------------------------------------------------------------------------#
+    # Start button action - Starts polling
+    # ---------------------------------------------------------------------------#
+    def startThread(self):
+        SensorThread.pollEn = True
+        self.debugModeToggle()
 
-        item.setExpanded(False)
-        self.treeWidget.setExpandsOnDoubleClick(True)
+        self.get_thread = SensorThread()
+        self.get_thread.start()
+        self.get_thread.regpoll.connect(self.updateValues)
+        self.get_thread.pollCountSignal.connect(self.updatePollCount)
+        self.get_thread.finished.connect(self.done)
 
-        if type(value) is dict:
-            for key, val in sorted(value.items()):
-                if key == 'Types':
-                    return
-                if key == 'mbrecord':
-                    child = modbusTool.last_child
-                    varname_tree = str(val["name"])
-                    getParentNode = child.parent()
-                    while getParentNode and getParentNode.text(0) != 'mbrecords':
-                        varname_tree = getParentNode.text(0) + '.' + varname_tree
-                        getParentNode = getParentNode.parent()
+        self.btnStart.setEnabled(False)
+        self.btnStop.setEnabled(True)
 
-                    modbusTool.entryDict.update({varname_tree : str(val["varname"])})
-                    return
-                child = QTreeWidgetItem()
-                modbusTool.last_child = child
-                child.setText(0, str(key))
-                item.addChild(child)
-                self.fill_item(child, val)
-
-##
-    ''' if type(value) is dict:
-            for key, val in sorted(value.items()):
-
-                if key == 'mbrecord':
-                    child = QTreeWidgetItem()
-                    #child = self.last_child #QTreeWidgetItem()
-                    #self.last_child = child
-                    child.setText(0, str(val["varname"]))
-                    item.addChild(child)
-                    #self.fill_item(child, val)
-                    return
-                child = QTreeWidgetItem()
-                modbusTool.last_child = child
-                child.setText(0, str(key))
-                item.addChild(child)
-                self.fill_item(child, val)
-    ## Unnecessary section  ##
-        elif type(value) is list:
-            for val in value:
-                child = QTreeWidgetItem()
-                self.last_child = child
-                item.addChild(child)
-                if type(val) is dict:
-                    child.setText(0, '[dict]')
-                    self.fill_item(child, val)
-                elif type(val) is list:
-                    child.setText(0, '[list]')
-                    self.fill_item(child, val)
-                else:
-                    child.setText(0, str(val))
-                child.setExpanded(True)
-
-        else:
-            if not self.last_child:
-                child = QTreeWidgetItem()
-            else:
-                child = self.last_child
-            child.setText(0, child.text(0)+ " : " + str(value))
-            item.addChild(child)
-        ## ##'''
-
-
-
-
-
-
-    def genRecord(self, key, input):
-
-        return input[key]
-
+    # ---------------------------------------------------------------------------#
+    # Save units button action
+    # TODO
+    # ---------------------------------------------------------------------------#
     def saveUnitsToFile(self):
         global lenpollList
         for row in list(range(0, lenpollList)):
@@ -371,64 +344,33 @@ class modbusTool(QtWidgets.QMainWindow, guidesign.Ui_MainWindow):
                 configAddress = [key for key, value in modbusTool.entryDict.items() if value == pollList[row]['varname']][0]
                 dict_ = config_file
                 for i in configAddress.split('.'):
-                    x = self.genRecord(i, dict_)
+                    x = dict_[i]
                     dict_ = x
 
                 print(dict_)
             except AttributeError:
                 continue
 
-
-
-
-    # ---------------------------------------------------------------------------#
-    # Starts polling on start clicked
-    # ---------------------------------------------------------------------------#
-    def startThread(self):
-        SensorThread.pollEn = True
-        self.debugModeToggle()
-        modbusTool.disp_enable = True
-        self.get_thread = SensorThread()
-        self.get_thread.start()
-        self.get_thread.regpoll.connect(self.updateValues)
-        self.get_thread.pollCountSignal.connect(self.updatePollCount)
-        self.btnStart.setEnabled(False)
-        self.btnStop.setEnabled(True)
-        self.btnStop.clicked.connect(self.pausedisplay)
-        self.get_thread.finished.connect(self.done)
-        modbusTool.threadEn = True
-
-
-    def updatePollCount(self, pollCounter):
-        self.m_statusright.setText("TX: %i" %(pollCounter))
-
-       # self.statusBar.showMessage("TX: %i" %(pollCounter))
-
     # ---------------------------------------------------------------------------#
     # Stop button action
     # ---------------------------------------------------------------------------#
     def pausedisplay(self):
-        modbusTool.threadEn = False
         SensorThread.pollEn = False
-        modbusTool.disp_enable = False
+
         self.btnStop.setEnabled(False)
         self.btnStart.setEnabled(True)
         SensorThread().debugToggle(False)
 
-
-    # ---------------------------------------------------------------------------#
-    # Connects debug checkbox to debug mode toggle
-    # ---------------------------------------------------------------------------#
-    def debugModeToggle(self):
-        if self.checkDebug.checkState():
-            SensorThread().debugToggle(True)
-        else:
-            SensorThread().debugToggle(False)
-
-
     # ---------------------------------------------------------------------------#
     # Write to register
     # ---------------------------------------------------------------------------#
+    def updateUI(self):
+        SensorThread.pollEn = True
+
+        self.debugModeToggle()
+        self.btnStart.setEnabled(False)
+        self.btnStop.setEnabled(True)
+
     def updateWriteButton(self):
         if pollList:
             self.btnWrite.setEnabled(True)
@@ -438,8 +380,9 @@ class modbusTool(QtWidgets.QMainWindow, guidesign.Ui_MainWindow):
             self.btnUnits.setEnabled(False)
 
     def writeToRegDelay(self):
-        SensorThread.poll_rate = 1
         SensorThread.pollEn = False
+
+        SensorThread.poll_rate = 1
         QTimer.singleShot(400, self.writeToReg)
 
     def writeToReg(self):
@@ -511,10 +454,11 @@ class modbusTool(QtWidgets.QMainWindow, guidesign.Ui_MainWindow):
 
                     if modbusTool.endian == modbusTool.endianCDAB:
                         reversedFi = [i for i in reversed(fi)]
-                        fi=reversedFi
+                        fi = reversedFi
                     valToWrite.append(fi)
 
-                    self.tableWidget.setItem(row, modbusTool.colMsg, QTableWidgetItem('Write Success (%s)' % writeValue.text()))
+                    self.tableWidget.setItem(row, modbusTool.colMsg,
+                                             QTableWidgetItem('Write Success (%s)' % writeValue.text()))
                     self.tableWidget.setItem(row, modbusTool.colWrite, QTableWidgetItem(None))
                 except ValueError:
                     self.tableWidget.setItem(row, modbusTool.colMsg, QTableWidgetItem(''))
@@ -526,19 +470,14 @@ class modbusTool(QtWidgets.QMainWindow, guidesign.Ui_MainWindow):
         SensorThread().writeToReg(valToWrite, addrToWrite)
         self.btnWrite.setEnabled(True)
         self.setPollRate()
-        if modbusTool.threadEn:
+        if SensorThread.pollEn:
             self.updateUI()
 
     # ---------------------------------------------------------------------------#
     # Updates table value field on modbus polling
     # ---------------------------------------------------------------------------#
     def set_endian(self, endianVal):
-            modbusTool.endian = endianVal
-
-
-    def setPollRate(self):
-        SensorThread.poll_rate = self.spinBoxPollRate.value()
-
+        modbusTool.endian = endianVal
 
     def updateValues(self, poll_value):
         global typeSizes
@@ -557,7 +496,7 @@ class modbusTool(QtWidgets.QMainWindow, guidesign.Ui_MainWindow):
         _little_end = '<'
         _big_end = '>'
 
-        if modbusTool.disp_enable:
+        if SensorThread.pollEn:
 
             for i in list(range(0, len(pollList))):
                 try:
@@ -566,7 +505,6 @@ class modbusTool(QtWidgets.QMainWindow, guidesign.Ui_MainWindow):
                     else:
                         if modbusTool.endian == modbusTool.endianCDAB:
                             poll_value[i].reverse()
-
 
                         pack_id = _big_end + typeSizes[pollList[i]['type']] * _uShort
                         try:
@@ -579,7 +517,8 @@ class modbusTool(QtWidgets.QMainWindow, guidesign.Ui_MainWindow):
                             elif pollList[i]['type'] == 'c_float':
                                 foo = struct.pack(pack_id, *poll_value[i])
                                 fi = struct.unpack(_big_end + _float, foo)
-                                self.tableWidget.setItem(i, modbusTool.colValue, QTableWidgetItem('{:.9f}'.format(fi[0])))
+                                self.tableWidget.setItem(i, modbusTool.colValue,
+                                                         QTableWidgetItem('{:.9f}'.format(fi[0])))
 
                             elif pollList[i]['type'] == 'c_int':
                                 foo = struct.pack(pack_id, *poll_value[i])
@@ -588,7 +527,7 @@ class modbusTool(QtWidgets.QMainWindow, guidesign.Ui_MainWindow):
 
                             elif pollList[i]['type'] == 'c_short':
                                 foo = struct.pack(pack_id, *poll_value[i])
-                                fi = struct.unpack(_big_end+ _short, foo)
+                                fi = struct.unpack(_big_end + _short, foo)
                                 self.tableWidget.setItem(i, modbusTool.colValue, QTableWidgetItem(str(fi[0])))
 
                             elif pollList[i]['type'] == 'c_ubyte':
@@ -613,7 +552,7 @@ class modbusTool(QtWidgets.QMainWindow, guidesign.Ui_MainWindow):
 
                             elif pollList[i]['type'] == 'vector2_t':
                                 data = []
-                                numEntries = list(range(0,int(pollList[i]['length'] / typeSizes[pollList[i]['type']])))
+                                numEntries = list(range(0, int(pollList[i]['length'] / typeSizes[pollList[i]['type']])))
                                 for j in numEntries:
                                     numEntries[j] = poll_value[i][0 + j * 4: 4 + j * 4]
                                 for word in numEntries:
@@ -635,7 +574,6 @@ class modbusTool(QtWidgets.QMainWindow, guidesign.Ui_MainWindow):
                     pass
         self.tableWidget.resizeColumnsToContents()
 
-
     # ---------------------------------------------------------------------------#
     # Table entries updating
     # ---------------------------------------------------------------------------#
@@ -653,12 +591,11 @@ class modbusTool(QtWidgets.QMainWindow, guidesign.Ui_MainWindow):
             self.tableWidget.setItem(entries, modbusTool.colRemove, item)
             self.tableWidget.setItem(entries, modbusTool.colRemove, QTableWidgetItem('   X'))
             if 'units' in pollList[entries]:
-                self.tableWidget.setItem(entries, modbusTool.colUnit,QTableWidgetItem(pollList[entries]['units']))
+                self.tableWidget.setItem(entries, modbusTool.colUnit, QTableWidgetItem(pollList[entries]['units']))
 
         self.tableWidget.resizeRowsToContents()
         self.tableWidget.resizeColumnsToContents()
         self.updateWriteButton()
-
 
     def delTableEntry(self, row, col):
         global lenpollList
@@ -679,30 +616,13 @@ class modbusTool(QtWidgets.QMainWindow, guidesign.Ui_MainWindow):
             getParentNode = baseNode.parent()
             while getParentNode and getParentNode.text(0) != 'mbrecords':
                 varname_tree = getParentNode.text(0) + '.' + varname_tree
-                getParentNode =  getParentNode.parent()
+                getParentNode = getParentNode.parent()
 
             for entry in mbmap:
                 if modbusTool.entryDict[varname_tree] == entry['varname'] and entry not in pollList:
                     pollList.append(entry)
         lenpollList = len(pollList)
         self.updateTable()
-
-
-
-
-    # ---------------------------------------------------------------------------#
-    # Thread finished action
-    # ---------------------------------------------------------------------------#
-    def done(self):
-        self.btnStop.setEnabled(False)
-        self.btnStart.setEnabled(True)
-
-
-    # ---------------------------------------------------------------------------#
-    # Print message in the message column
-    # ---------------------------------------------------------------------------#
-    def printMsg(self, row, msg):
-        self.tableWidget.setItem(row, modbusTool.colMsg, QTableWidgetItem(msg))
 
 
 # ---------------------------------------------------------------------------#
@@ -723,11 +643,11 @@ def get_values(dict_in, key_find):
             elif isinstance(value, dict):
                 for id_val in value_gen(value):
                     yield id_val
+
     for values in value_gen(dict_in):
         values_list.append(values)
 
     return values_list
-
 
 
 def main():
@@ -755,12 +675,11 @@ def main():
     for i in mbmap:
         if 'ignore' in i:
             mbmap.remove(i)
+
     app = QtWidgets.QApplication(sys.argv)
     form = modbusTool()
     form.show()
     app.exec_()
-
-
 
 
 if __name__ == '__main__':
