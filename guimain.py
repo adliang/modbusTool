@@ -153,7 +153,7 @@ class modbusTool(QtWidgets.QMainWindow, guidesign.Ui_MainWindow):
 
     endianABCD = 0  # Big Endian Bytes, Reg 1 MSW
     endianCDAB = 1  # Big Endian Bytes, Reg 2 MSW
-
+    threadStarted = 0
     endian = endianABCD  # Endian for floats
     last_child = 0
     entryDict = {}
@@ -320,15 +320,30 @@ class modbusTool(QtWidgets.QMainWindow, guidesign.Ui_MainWindow):
     def startThread(self):
         SensorThread.pollEn = True
         self.debugModeToggle()
-
-        self.get_thread = SensorThread()
-        self.get_thread.start()
-        self.get_thread.regpoll.connect(self.updateValues)
-        self.get_thread.pollCountSignal.connect(self.updatePollCount)
-        self.get_thread.finished.connect(self.done)
-
+        if not modbusTool.threadStarted:
+            print('fsusfudfs')
+            self.get_thread = SensorThread()
+            self.get_thread.start()
+            self.get_thread.regpoll.connect(self.updateValues)
+            self.get_thread.pollCountSignal.connect(self.updatePollCount)
+            self.get_thread.finished.connect(self.done)
+            modbusTool.threadStarted = 1
+        else:
+            print('SAUSABSDBDASs')
         self.btnStart.setEnabled(False)
         self.btnStop.setEnabled(True)
+
+
+    # ---------------------------------------------------------------------------#
+    # Stop button action
+    # ---------------------------------------------------------------------------#
+    def pausedisplay(self):
+        SensorThread.pollEn = False
+        SensorThread().debugToggle(False)
+
+        self.btnStop.setEnabled(False)
+        self.btnStart.setEnabled(True)
+
 
     # ---------------------------------------------------------------------------#
     # Save units button action
@@ -346,27 +361,16 @@ class modbusTool(QtWidgets.QMainWindow, guidesign.Ui_MainWindow):
                 for i in configAddress.split('.'):
                     x = dict_[i]
                     dict_ = x
-
                 print(dict_)
             except AttributeError:
                 continue
 
-    # ---------------------------------------------------------------------------#
-    # Stop button action
-    # ---------------------------------------------------------------------------#
-    def pausedisplay(self):
-        SensorThread.pollEn = False
-
-        self.btnStop.setEnabled(False)
-        self.btnStart.setEnabled(True)
-        SensorThread().debugToggle(False)
 
     # ---------------------------------------------------------------------------#
     # Write to register
     # ---------------------------------------------------------------------------#
     def updateUI(self):
         SensorThread.pollEn = True
-
         self.debugModeToggle()
         self.btnStart.setEnabled(False)
         self.btnStop.setEnabled(True)
@@ -381,7 +385,6 @@ class modbusTool(QtWidgets.QMainWindow, guidesign.Ui_MainWindow):
 
     def writeToRegDelay(self):
         SensorThread.pollEn = False
-
         SensorThread.poll_rate = 1
         QTimer.singleShot(400, self.writeToReg)
 
