@@ -736,13 +736,13 @@ def main():
     global user_file
 
     try:
-        with open('latest1402\config.json') as infile:
+        with open('config\config.json') as infile:
             config_file = json.load(infile)
             infile.close()
     except FileNotFoundError:
         input("Config.json not found. Press enter to continue...")
     try:
-        with open('best1302\config-user.json') as infile:
+        with open('config\config-user.json') as infile:
             user_file = json.load(infile)
             infile.close()
     except FileNotFoundError:
