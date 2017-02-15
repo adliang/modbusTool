@@ -1,2 +1,9 @@
 V.0.1.0 - Read registers 
+	
 	- Save / Load view list
+
+V.0.2.0 - Save / Load settings feature
+	- Command Panel added
+	- Display format dropdown
+	- Write registers
+	- Updated GUI layout

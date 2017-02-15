@@ -1,0 +1,145 @@
+{
+   "Arm": {
+       "Version": {
+            "Dirty": {
+                "mbrecord": {
+                    "access": "RO", 
+                    "alloc": 4000,
+                    "length": 1, 
+                    "name": "Dirty", 
+                    "type": "c_ushort", 
+                    "varname": "M3_version.Dirty",
+                    "varwrite" : "NULL"
+                }
+            }, 
+            "Hash": {
+                "mbrecord": {
+                    "access": "RO", 
+                    "alloc": 4001, 
+                    "length": 2, 
+                    "name": "Hash", 
+                    "type": "c_uint", 
+                    "varname": "M3_version.Hash",
+                    "varwrite" : "NULL"
+                }
+            }, 
+            "Major": {
+                "mbrecord": {
+                    "access": "RO", 
+                    "alloc": 4003, 
+                    "length": 1, 
+                    "name": "Major", 
+                    "type": "c_ushort", 
+                    "varname": "M3_version.Major",
+                    "varwrite" : "NULL"
+                }
+            }, 
+            "Minor": {
+                "mbrecord": {
+                    "access": "RO", 
+                    "alloc": 4004, 
+                    "length": 1, 
+                    "name": "Minor", 
+                    "type": "c_ushort", 
+                    "varname": "M3_version.Minor",
+                    "varwrite" : "NULL"
+                }
+            }, 
+            "Subversion": {
+                "mbrecord": {
+                    "access": "RO", 
+                    "alloc": 4005, 
+                    "length": 1, 
+                    "name": "Subversion", 
+                    "type": "c_ushort", 
+                    "varname": "M3_version.Subversion",
+                    "varwrite" : "NULL"
+                }
+            }
+        }
+    },
+   "Fpga": {
+       "Version": {
+            "Dirty": {
+                "mbrecord": {
+                    "access": "RO", 
+                    "alloc": 4020,
+                    "length": 1, 
+                    "name": "Dirty", 
+                    "type": "c_ushort", 
+                    "varname": "FPGA_version.Dirty",
+                    "varwrite" : "NULL"
+                }
+            }, 
+            "Hash": {
+                "mbrecord": {
+                    "access": "RO", 
+                    "alloc": 4021, 
+                    "length": 2, 
+                    "name": "Hash", 
+                    "type": "c_uint", 
+                    "varname": "FPGA_version.Hash",
+                    "varwrite" : "NULL"
+                }
+            }, 
+            "Major": {
+                "mbrecord": {
+                    "access": "RO", 
+                    "alloc": 4023, 
+                    "length": 1, 
+                    "name": "Major", 
+                    "type": "c_ushort", 
+                    "varname": "FPGA_version.Major",
+                    "varwrite" : "NULL"
+                }
+            }, 
+            "Minor": {
+                "mbrecord": {
+                    "access": "RO", 
+                    "alloc": 4024, 
+                    "length": 1, 
+                    "name": "Minor", 
+                    "type": "c_ushort", 
+                    "varname": "FPGA_version.Minor",
+                    "varwrite" : "NULL"
+                }
+            }, 
+            "Subversion": {
+                "mbrecord": {
+                    "access": "RO", 
+                    "alloc": 4025, 
+                    "length": 1, 
+                    "name": "Subversion", 
+                    "type": "c_ushort", 
+                    "varname": "FPGA_version.Subversion",
+                    "varwrite" : "NULL"
+                }
+            }
+        }
+    },
+    "Ipc": {
+        "Measurements": {
+            "Logic": {
+                "pendingCommands": {
+                    "mbrecord": {
+                        "access": "RW", 
+                        "name": "pendingCommands", 
+                        "varname": "ipc_CtoM.Measurements.Logic.pendingCommands", 
+                        "varwrite" : "&(ipc_MtoC.IpcCommand)"
+                    }
+                } 
+            }
+        }
+    },
+    "Command": {
+        "mbrecord": {
+            "access": "RW", 
+            "alloc": 1000, 
+            "length": 2, 
+            "name": "Command", 
+            "type": "c_uint", 
+            "varname": "ipc_MtoC.IpcCommand", 
+            "varwrite" : "&(ipc_MtoC.IpcCommand)"
+        }
+    }
+}
