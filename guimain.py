@@ -144,7 +144,6 @@ class modbusTool(QtWidgets.QMainWindow, guidesign.Ui_MainWindow):
 
     endian = endianABCD  # Endian for floats
     last_child = 0
-    entryDict = {}
 
     def __init__(self, parent=None):
         super(modbusTool, self).__init__(parent)
@@ -302,15 +301,20 @@ class modbusTool(QtWidgets.QMainWindow, guidesign.Ui_MainWindow):
                         return
 
                     if key == 'mbrecord':
-                        child = modbusTool.last_child
-                        varname_tree = str(val["name"])
-                        getParentNode = child.parent()
-                        while getParentNode and getParentNode.text(0) != 'mbrecords':
-                            varname_tree = getParentNode.text(0) + '.' + varname_tree
-                            getParentNode = getParentNode.parent()
-                        modbusTool.entryDict.update({varname_tree: str(val["varname"])})
-
-                        return
+                        if 'ignore' in val:
+                            if val['ignore']:
+                                child = modbusTool.last_child
+                                child.removeChild(child)
+                                continue
+                        else:
+                            child = modbusTool.last_child
+                            varname_tree = str(val["name"])
+                            getParentNode = child.parent()
+                            while getParentNode and getParentNode.text(0) != 'mbrecords':
+                                varname_tree = getParentNode.text(0) + '.' + varname_tree
+                                getParentNode = getParentNode.parent()
+                            mbmapVar[val["varname"]].update({'treename' : varname_tree})
+                            return
 
                     child = QTreeWidgetItem()
                     modbusTool.last_child = child
@@ -438,22 +442,23 @@ class modbusTool(QtWidgets.QMainWindow, guidesign.Ui_MainWindow):
         global lenpollList
         for row in list(range(0, lenpollList)):
             unitsValue = self.tableWidget.item(row, modbusTool.colUnit)
+            if unitsValue:
+                try:
+                    pollList[row].update({'units': unitsValue.text()})
+                    configAddress = pollList[row]['treename']
+                    #dict_ = config_file
+                    pprint(configAddress.split('.')[1:])
+                    #x_temp = {configAddress.split('.')[1]: None}
+                    #for i in range(1 , 1+len(configAddress.split('.')[1:])):
+                        #x_temp.update({ configAddress.split('.')[i-1] : ({configAddress.split('.')[i]: None}) })
+                        #x = dict_
+                        # [i]
+                        #dict_ = x
 
-            try:
-                pollList[row].update({'units': unitsValue.text()})
-                #configAddress = [key for key, value in modbusTool.entryDict.items() if value == pollList[row]['varname']][0]
-                #dict_ = config_file
-                #pprint(configAddress.split('.')[1:])
-                #x_temp = {configAddress.split('.')[1]: None}
-                #for i in range(1 , 1+len(configAddress.split('.')[1:])):
-                    #x_temp.update({ configAddress.split('.')[i-1] : ({configAddress.split('.')[i]: None}) })
-                    #x = dict_
-                    # [i]
-                    #dict_ = x
+                    #pprint(x_temp)
 
-                #pprint(x_temp)
-            except AttributeError:
-                continue
+                except AttributeError:
+                    continue
 
 
     # ---------------------------------------------------------------------------#
@@ -749,24 +754,18 @@ class modbusTool(QtWidgets.QMainWindow, guidesign.Ui_MainWindow):
 
     def addTableEntry(self):
         global lenpollList
-        getSelected = self.treeWidget.currentItem()
-        baseNode = getSelected
+        baseNode = self.treeWidget.currentItem()
         if baseNode.childCount() == 0:
             varname_tree = baseNode.text(0)
             getParentNode = baseNode.parent()
             while getParentNode and getParentNode.text(0) != 'mbrecords':
                 varname_tree = getParentNode.text(0) + '.' + varname_tree
                 getParentNode = getParentNode.parent()
-
-            entryVarname = modbusTool.entryDict[varname_tree]
-            if mbmapVar[entryVarname] not in pollList:
-                pollList.append(mbmapVar[entryVarname])
-
-            #if modbusTool.entryDict[varname_tree] == entry['varname'] and entry not in pollList:
-             #   pollList.append(entry)
+            for name, age in mbmapVar.items():
+                if age['treename'] == varname_tree:
+                    pollList.append(age)
         lenpollList = len(pollList)
         self.updateTable()
-
 
 # ---------------------------------------------------------------------------#
 # Gets list of dict values from key
@@ -820,9 +819,7 @@ def main():
     for i in mbmap:
         if 'ignore' in i:
             mbmap.remove(i)
-
     mbmapVar = dict((d['varname'], dict(d, index=index)) for (index, d) in enumerate(mbmap))
-    pprint(mbmapVar)
     app = QtWidgets.QApplication(sys.argv)
     form = modbusTool()
     form.show()
