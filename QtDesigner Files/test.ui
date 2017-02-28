@@ -331,6 +331,11 @@
         <attribute name="verticalHeaderStretchLastSection">
          <bool>false</bool>
         </attribute>
+        <row>
+         <property name="text">
+          <string>New Row</string>
+         </property>
+        </row>
         <column>
          <property name="text">
           <string>Value</string>
@@ -361,6 +366,26 @@
           <string>Notes</string>
          </property>
         </column>
+        <item row="0" column="0">
+         <property name="text">
+          <string>f3f</string>
+         </property>
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="background">
+          <brush brushstyle="NoBrush">
+           <color alpha="255">
+            <red>255</red>
+            <green>0</green>
+            <blue>0</blue>
+           </color>
+          </brush>
+         </property>
+        </item>
        </widget>
       </item>
      </layout>
